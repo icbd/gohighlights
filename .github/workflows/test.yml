@@ -1,0 +1,40 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+on: [ push, pull_request ]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      GIN_MODE: test
+      CONF_LOC: ./gohighlights/config.yaml
+    steps:
+      - name: Setup MySQL
+        uses: mirromutth/mysql-action@v1.1
+        with:
+          host port: 3306
+          container port: 3306
+          character set server: utf8mb4
+          collation server: utf8mb4_general_ci
+          mysql version: 8.0
+          mysql root password: rootpassword
+          mysql database: gohighlights_test
+          mysql user: root
+          mysql password: rootpassword
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+
+      - name: Debug
+        run: ls -AlFh; pwd; which go; go env; echo $GIN_MODE;
+
+      - name: Migrate
+        run:  go run ./bin/migrate_cmd.go -db=migrate
+
+      - name: Run Test
+        run: go test ./... -cover

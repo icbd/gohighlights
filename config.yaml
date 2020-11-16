@@ -1,0 +1,21 @@
+default: &default
+  app:
+    addr: "0.0.0.0:3000"
+  db:
+    type: {{ ENV "DB_TYPE" }}
+    dsn: {{ ENV "DB_DSN" }}
+
+debug:
+  <<: *default
+  db:
+    type: mysql
+    dsn: "root:rootpassword@tcp(127.0.0.1:3306)/gohighlights?charset=utf8mb4&parseTime=True&loc=Local"
+
+release:
+  <<: *default
+
+test:
+  <<: *default
+  db:
+    type: mysql
+    dsn: "root:rootpassword@tcp(127.0.0.1:3306)/gohighlights_test?charset=utf8mb4&parseTime=True&loc=Local"
