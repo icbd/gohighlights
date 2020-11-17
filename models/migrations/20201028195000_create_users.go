@@ -7,7 +7,7 @@ import (
 func createUsers() error {
 	type User struct {
 		gorm.Model
-		Status       uint8  `gorm:"type:tinyint;comment:enum"`
+		Status       string `gorm:"type:varchar(255);index"`
 		Email        string `gorm:"type:varchar(255);uniqueIndex"`
 		PasswordHash string `gorm:"type:text;comment:BCrypt"`
 	}

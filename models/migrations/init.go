@@ -12,7 +12,6 @@ func init() {
 	mm.RegisterFunctions(
 		createUsers,
 		addAvatarToUsers,
-		changeStatusOnUsers,
 		createSessions,
 		createMarks,
 	)

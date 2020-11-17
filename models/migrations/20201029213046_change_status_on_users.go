@@ -1,5 +1,8 @@
 package migrations
 
+/*
+Remove this migration. Sqlite don't support DROP COLUMN command.
+ */
 func changeStatusOnUsers() error {
 	up := mm.ChangeFuncWrap(
 		`ALTER TABLE users DROP COLUMN status;`,
