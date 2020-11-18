@@ -6,6 +6,7 @@ import (
 	"github.com/icbd/gohighlights/utils"
 	"golang.org/x/crypto/bcrypt"
 	"log"
+	"net/url"
 	"time"
 )
 
@@ -67,15 +68,14 @@ func (u *User) GenerateSession() (*Session, error) {
 	return &s, nil
 }
 
-func (u *User) MarkQuery(url string) []Mark {
-	var marks []Mark
-	var urlStr string
-	if urlBytes, err := base64.StdEncoding.DecodeString(url); err != nil {
-		urlStr = url
-	} else {
-		urlStr = string(urlBytes)
+func (u *User) MarkQuery(safeBase64URL string) []Mark {
+	marks := make([]Mark, 0)
+	var err error
+	if safeBase64URL, err = url.QueryUnescape(safeBase64URL); err == nil {
+		if urlBytes, err := base64.StdEncoding.DecodeString(safeBase64URL); err == nil {
+			DB().Where("user_id = ? AND url = ?", u.ID, string(urlBytes)).Find(&marks)
+		}
 	}
-	DB().Where("user_id = ? AND url = ?", u.ID, urlStr).Find(&marks)
 	return marks
 }
 
@@ -88,6 +88,12 @@ func (u *User) MarksAll(vo PaginationVO) []Mark {
 func (u *User) MarksTotal() (total int64) {
 	DB().Model(&Mark{}).Where("user_id = ?", u.ID).Count(&total)
 	return total
+}
+
+func (u *User) GetMark(hashKey string) (mark *Mark, err error) {
+	mark = &Mark{}
+	err = DB().Where("user_id = ? AND hash_key = ?", u.ID, hashKey).First(mark).Error
+	return
 }
 
 func (u *User) CreateMark(vo MarkCreateVO) (mark *Mark, err error) {
@@ -103,4 +109,22 @@ func (u *User) CreateMark(vo MarkCreateVO) (mark *Mark, err error) {
 	} else {
 		return mark, nil
 	}
+}
+
+func (u *User) DestroyMark(hashKey string) error {
+	mark := Mark{}
+	if err := DB().Where("user_id = ? AND hash_key = ?", u.ID, hashKey).First(&mark).Error; err != nil {
+		return err
+	}
+	return DB().Delete(&mark).Error
+}
+
+func (u *User) UpdateMark(hashKey string, vo *MarkUpdateVO) (mark *Mark, err error) {
+	mark, err = u.GetMark(hashKey)
+	if err != nil {
+		return nil, err
+	}
+	mark.Tag = vo.Tag
+	err = DB().Updates(mark).Error
+	return mark, err
 }

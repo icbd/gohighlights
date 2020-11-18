@@ -29,8 +29,8 @@ func Ping() error {
 }
 
 type PaginationVO struct {
-	Page int `json:"page" binding:"min=1"`
-	Size int `json:"size" binding:"max=100"`
+	Page int `json:"page" form:"page" binding:"min=1"`
+	Size int `json:"size" form:"size" binding:"max=100"`
 }
 
 var Pagination = PaginationVO{Page: 1, Size: 10}

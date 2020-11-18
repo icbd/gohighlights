@@ -1,11 +1,13 @@
 package api
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/icbd/gohighlights/controllers/middleware"
 	"github.com/icbd/gohighlights/errs"
 	"github.com/icbd/gohighlights/models"
+	"gorm.io/gorm"
 	"net/http"
 )
 
@@ -23,6 +25,11 @@ func (a *API) OK(payload interface{}) {
 
 func (a *API) Created(payload interface{}) {
 	a.C.JSON(http.StatusCreated, payload)
+}
+
+func (a *API) NoContent() {
+	a.C.Writer.WriteHeader(http.StatusNoContent)
+	a.C.Writer.WriteHeaderNow()
 }
 
 func (a *API) InternalErr() {
@@ -50,7 +57,12 @@ func (a *API) ParametersErr(err error) {
 		return
 	}
 
-	a.C.JSON(http.StatusBadRequest, errs.E{C: errs.Parameters, M: []string{err.Error()}})
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		a.C.Writer.WriteHeader(http.StatusNotFound)
+		a.C.Writer.WriteHeaderNow()
+	} else {
+		a.C.JSON(http.StatusBadRequest, errs.E{C: errs.Parameters, M: []string{err.Error()}})
+	}
 }
 
 func (a *API) NotFoundErr() {
