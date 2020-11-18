@@ -15,5 +15,8 @@ type MarkCreateVO struct {
 	Tag       string `json:"tag"`
 	HashKey   string `json:"hash_key"`
 	Selection string `json:"selection"`
-	Bearer    string `json:"bearer"`
+}
+
+type MarkUpdateVO struct {
+	Tag string `json:"tag"`
 }
