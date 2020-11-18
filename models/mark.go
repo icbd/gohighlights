@@ -18,5 +18,6 @@ type MarkCreateVO struct {
 }
 
 type MarkUpdateVO struct {
-	Tag string `json:"tag"`
+	Tag       string `json:"tag"`
+	Selection string `json:"selection"`
 }

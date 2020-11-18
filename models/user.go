@@ -125,6 +125,7 @@ func (u *User) UpdateMark(hashKey string, vo *MarkUpdateVO) (mark *Mark, err err
 		return nil, err
 	}
 	mark.Tag = vo.Tag
+	mark.Selection = vo.Selection
 	err = DB().Updates(mark).Error
 	return mark, err
 }
