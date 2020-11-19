@@ -25,3 +25,7 @@ including sub-packages
 GIN_MODE=test go run ./bin/migrate_cmd.go -db=migrate
 GIN_MODE=test go test ./... -v
 ```
+
+## License
+
+MIT, see [LICENSE](LICENSE)
