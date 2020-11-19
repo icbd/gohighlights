@@ -1,11 +1,8 @@
 package middleware
 
 import (
-	"bytes"
-	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/icbd/gohighlights/models"
-	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -23,19 +20,21 @@ func CurrentUserMiddleware(c *gin.Context) {
 		bearer = splits[1]
 	}
 
-	if bearer == "" {
-		bearer = c.Query("bearer")
-	}
-
-	if bearer == "" && c.Request.Body != nil {
-		if data, err := ioutil.ReadAll(c.Request.Body); err == nil {
-			b := BearerVO{}
-			if err := json.Unmarshal(data, &b); err == nil {
-				bearer = b.Bearer
-			}
-			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data))
-		}
-	}
+	//// query params
+	//if bearer == "" {
+	//	bearer = c.Query("bearer")
+	//}
+	//
+	//// request body
+	//if bearer == "" && c.Request.Body != nil {
+	//	if data, err := ioutil.ReadAll(c.Request.Body); err == nil {
+	//		b := BearerVO{}
+	//		if err := json.Unmarshal(data, &b); err == nil {
+	//			bearer = b.Bearer
+	//		}
+	//		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data))
+	//	}
+	//}
 
 	if bearer != "" {
 		s := models.Session{Token: bearer}
