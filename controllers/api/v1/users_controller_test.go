@@ -27,6 +27,7 @@ func TestUsersCreate(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
 	ctx.Request = httptest.NewRequest("POST", "/api/v1/users", bytes.NewReader(body))
+	ctx.Request.Header.Set("Content-Type", "application/json")
 
 	UsersCreate(ctx)
 	assert.Equal(http.StatusCreated, w.Code)

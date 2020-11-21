@@ -6,8 +6,8 @@ import (
 )
 
 type SessionVO struct {
-	Email    string `json:"email" binding:"email"`
-	Password string `json:"password" binding:"min=6"`
+	Email    string `json:"email" form:"email" binding:"required,email"`
+	Password string `json:"password" form:"password" binding:"min=6"`
 }
 
 func (s *SessionVO) Validate() error {

@@ -57,6 +57,20 @@ func (u *User) Validate() error {
 	return _validator.Struct(u)
 }
 
+func FindUserByEmail(email string) (u *User, err error) {
+	u = &User{}
+	err = DB().Where("email = ?", email).First(u).Error
+	return
+}
+
+func (u *User) Create() error {
+	if err := u.CalcPasswordHash(); err != nil {
+		return err
+	}
+
+	return DB().Create(u).Error
+}
+
 func (u *User) GenerateSession() (*Session, error) {
 	s := Session{
 		Token:     utils.GenerateToken(16),
