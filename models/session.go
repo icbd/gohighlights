@@ -29,7 +29,7 @@ type Session struct {
 	Token     string    `json:"token" gorm:"uniqueindex;not null;type:varchar(255)"`
 	ExpiredAt time.Time `json:"expired_at" gorm:"not null"`
 	UserID    uint      `json:"user_id" gorm:"not null"`
-	User      User      `json:"-"`
+	User      User      `json:"user"`
 }
 
 func (s *Session) FindByToken() error {

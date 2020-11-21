@@ -62,6 +62,7 @@ func UsersCreate(c *gin.Context) {
 	if s, err := u.GenerateSession(); err != nil {
 		resp.ParametersErr(err)
 	} else {
+		s.User = *u
 		resp.Created(s)
 	}
 }
