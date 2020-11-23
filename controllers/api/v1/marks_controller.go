@@ -25,7 +25,7 @@ func MarksCreate(c *gin.Context) {
 		return
 	}
 
-	if mark, err := u.CreateMark(vo); err != nil {
+	if mark, err := models.MarkCreate(u, vo); err != nil {
 		resp.ParametersErr(err)
 	} else {
 		resp.Created(mark)
@@ -42,13 +42,13 @@ func MarksUpdate(c *gin.Context) {
 	resp := api.New(c)
 	u := api.CurrentUser(c)
 
-	vo := models.MarkUpdateVO{}
+	vo := models.MarkUpdateVO{HashKey: c.Param("hash_key")}
 	if err := c.BindJSON(&vo); err != nil {
 		resp.ParametersErr(err)
 		return
 	}
 
-	if mark, err := u.UpdateMark(c.Param("hash_key"), &vo); err != nil {
+	if mark, err := models.MarkUpdate(u, &vo); err != nil {
 		resp.ParametersErr(err)
 	} else {
 		resp.OK(mark)
@@ -62,7 +62,7 @@ func MarksDestroy(c *gin.Context) {
 	resp := api.New(c)
 	u := api.CurrentUser(c)
 
-	if err := u.DestroyMark(c.Param("hash_key")); err != nil {
+	if err := models.MarkDestroy(u, c.Param("hash_key")); err != nil {
 		resp.ParametersErr(err)
 	} else {
 		resp.NoContent()
@@ -75,7 +75,7 @@ GET /api/v1/marks/query?url=encodeURIComponent(btoa(url))
 func MarksQuery(c *gin.Context) {
 	resp := api.New(c)
 	u := api.CurrentUser(c)
-	marks := u.MarkQuery(c.Query("url"))
+	marks := models.MarkQuery(u, c.Query("url"))
 	resp.OK(marks)
 }
 
@@ -93,7 +93,7 @@ func MarksIndex(c *gin.Context) {
 	}
 
 	resp.OK(gin.H{
-		"total": u.MarksTotal(),
-		"items": u.MarksAll(pagination),
+		"total": models.MarkTotal(u),
+		"items": models.MarkList(u, pagination),
 	})
 }
