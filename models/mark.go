@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/base64"
 	"net/url"
+	"strings"
 )
 
 type Mark struct {
@@ -88,4 +89,16 @@ func MarkList(u *User, vo PaginationVO) []Mark {
 func MarkTotal(u *User) (total int64) {
 	DB().Model(&Mark{}).Where("user_id = ?", u.ID).Count(&total)
 	return total
+}
+
+func (m *Mark) SelectionText() string {
+	texts := m.Selection.Texts
+	if len(texts) == 1 {
+		return texts[0][m.Selection.StartOffset:m.Selection.EndOffset]
+	}
+
+	texts[0] = texts[0][m.Selection.StartOffset:len(texts[0])]
+	lastIndex := len(texts) - 1
+	texts[lastIndex] = texts[lastIndex][0:m.Selection.EndOffset]
+	return strings.Join(texts, "\r\n")
 }
