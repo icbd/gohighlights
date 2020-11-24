@@ -3,12 +3,12 @@ module github.com/icbd/gohighlights
 go 1.15
 
 require (
-	github.com/elastic/go-elasticsearch/v7 v7.10.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/icbd/gorm-migration v0.0.3
 	github.com/jinzhu/copier v0.0.0-20201025035756-632e723a6687
+	github.com/olivere/elastic/v7 v7.0.22
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1

@@ -72,12 +72,13 @@ func MarkUpdate(u *User, vo *MarkUpdateVO) (mark *Mark, err error) {
 	return mark, err
 }
 
-func MarkDestroy(u *User, hashKey string) error {
-	mark := Mark{}
+func MarkDestroy(u *User, hashKey string) (mark *Mark, err error) {
+	mark = &Mark{}
 	if err := DB().Where("user_id = ? AND hash_key = ?", u.ID, hashKey).First(&mark).Error; err != nil {
-		return err
+		return nil, err
 	}
-	return DB().Delete(&mark).Error
+	err = DB().Delete(&mark).Error
+	return mark, err
 }
 
 func MarkList(u *User, vo PaginationVO) []Mark {

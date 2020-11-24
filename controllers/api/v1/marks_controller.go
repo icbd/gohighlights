@@ -3,7 +3,7 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/icbd/gohighlights/controllers/api"
-	"github.com/icbd/gohighlights/indexes"
+	"github.com/icbd/gohighlights/indices"
 	"github.com/icbd/gohighlights/models"
 )
 
@@ -29,7 +29,7 @@ func MarksCreate(c *gin.Context) {
 	if mark, err := models.MarkCreate(u, vo); err != nil {
 		resp.ParametersErr(err)
 	} else {
-		if mIndex, err := indexes.NewMark(mark); err == nil {
+		if mIndex, err := indices.NewMark(mark); err == nil {
 			mIndex.Fresh()
 		}
 		resp.Created(mark)
@@ -55,7 +55,7 @@ func MarksUpdate(c *gin.Context) {
 	if mark, err := models.MarkUpdate(u, &vo); err != nil {
 		resp.ParametersErr(err)
 	} else {
-		if mIndex, err := indexes.NewMark(mark); err == nil {
+		if mIndex, err := indices.NewMark(mark); err == nil {
 			mIndex.Fresh()
 		}
 		resp.OK(mark)
@@ -69,9 +69,10 @@ func MarksDestroy(c *gin.Context) {
 	resp := api.New(c)
 	u := api.CurrentUser(c)
 
-	if err := models.MarkDestroy(u, c.Param("hash_key")); err != nil {
+	if m, err := models.MarkDestroy(u, c.Param("hash_key")); err != nil {
 		resp.ParametersErr(err)
 	} else {
+		indices.DeleteBy(m.ID)
 		resp.NoContent()
 	}
 }

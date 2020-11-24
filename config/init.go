@@ -76,6 +76,10 @@ func GetInt(key string) int {
 	return viper.GetInt(configKey(key))
 }
 
+func GetBool(key string) bool {
+	return viper.GetBool(configKey(key))
+}
+
 func Set(key string, value interface{}) {
 	viper.Set(configKey(key), value)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/icbd/gohighlights/config"
+	"github.com/icbd/gohighlights/indices"
 	"github.com/icbd/gohighlights/models"
 	"github.com/icbd/gohighlights/models/migrations"
 	"github.com/icbd/gohighlights/routes"
@@ -21,6 +22,7 @@ func main() {
 	}
 
 	migrations.Migrate(mgr.Check)
+	indices.Ping()
 
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)
