@@ -28,5 +28,6 @@ func ApiV1Auth(r *gin.Engine) {
 	rg.DELETE("/marks/:hash_key", v1.MarksDestroy)
 	rg.PATCH("/marks/:hash_key", v1.MarksUpdate)
 	rg.GET("/marks/query", v1.MarksQuery)
+	rg.GET("/marks/search", v1.MarksSearch)
 	rg.GET("/marks", v1.MarksIndex)
 }

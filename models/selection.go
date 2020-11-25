@@ -8,7 +8,7 @@ import (
 
 type Selection struct {
 	Texts       []string `json:"texts" binding:"required"`
-	StartOffset int      `json:"startOffset" binding:"required"`
+	StartOffset int      `json:"startOffset"`
 	EndOffset   int      `json:"endOffset" binding:"required"`
 }
 

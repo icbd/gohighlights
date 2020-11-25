@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bytes"
 	"encoding/base64"
 	"net/url"
 	"strings"
@@ -92,14 +93,29 @@ func MarkTotal(u *User) (total int64) {
 	return total
 }
 
+const HTMLSplitTag = "\t"
+
 func (m *Mark) SelectionText() string {
 	texts := m.Selection.Texts
 	if len(texts) == 1 {
-		return texts[0][m.Selection.StartOffset:m.Selection.EndOffset]
+		runes := []rune(texts[0])
+		subRunes := string(runes[m.Selection.StartOffset:m.Selection.EndOffset])
+		return strings.TrimSpace(subRunes)
 	}
 
-	texts[0] = texts[0][m.Selection.StartOffset:len(texts[0])]
+	firstUnicodeStr := []rune(texts[0])
+	texts[0] = string(firstUnicodeStr[m.Selection.StartOffset:len(firstUnicodeStr)])
+
 	lastIndex := len(texts) - 1
-	texts[lastIndex] = texts[lastIndex][0:m.Selection.EndOffset]
-	return strings.Join(texts, "\r\n")
+	lastUnicodeStr := []rune(texts[lastIndex])
+	texts[lastIndex] = string(lastUnicodeStr[0:m.Selection.EndOffset])
+
+	var buffer bytes.Buffer
+	for i, s := range texts {
+		if i > 0 {
+			buffer.WriteString(HTMLSplitTag)
+		}
+		buffer.WriteString(strings.TrimSpace(s))
+	}
+	return buffer.String()
 }

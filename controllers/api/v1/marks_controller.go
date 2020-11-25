@@ -5,6 +5,7 @@ import (
 	"github.com/icbd/gohighlights/controllers/api"
 	"github.com/icbd/gohighlights/indices"
 	"github.com/icbd/gohighlights/models"
+	"net/url"
 )
 
 /**
@@ -85,6 +86,20 @@ func MarksQuery(c *gin.Context) {
 	u := api.CurrentUser(c)
 	marks := models.MarkQuery(u, c.Query("url"))
 	resp.OK(marks)
+}
+
+/**
+GET /api/v1/marks/search?q=xxx
+*/
+func MarksSearch(c *gin.Context) {
+	resp := api.New(c)
+	u := api.CurrentUser(c)
+	if text, err := url.QueryUnescape(c.Query("q")); err != nil {
+		resp.ParametersErr(err)
+		return
+	} else {
+		resp.OK(indices.Query(u, text))
+	}
 }
 
 /**

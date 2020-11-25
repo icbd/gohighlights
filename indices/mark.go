@@ -2,6 +2,7 @@ package indices
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/icbd/gohighlights/models"
 	"github.com/jinzhu/copier"
@@ -105,4 +106,55 @@ func DeleteBy(id uint) (*elastic.DeleteResponse, error) {
 		Index(MarkIndexName).
 		Id(cast.ToString(id)).
 		Do(context.Background())
+}
+
+/**
+GET /mark/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "user_id": {
+              "value": 1
+            }
+          }
+        },
+        {
+          "match": {
+            "selection": "过滤"
+          }
+        }
+      ]
+    }
+  },
+  "_source": [
+    "id"
+  ]
+}
+*/
+func Query(u *models.User, text string) (marks []*Mark) {
+	boolQuery := elastic.NewBoolQuery()
+	boolQuery.Must(
+		elastic.NewTermQuery("user_id", u.ID),
+		elastic.NewMatchQuery("selection", text),
+	)
+	result, err := Client.
+		Search().
+		Index(MarkIndexName).
+		Query(boolQuery).
+		Sort("id", false).
+		Do(context.Background())
+	if err != nil {
+		return
+	}
+
+	for _, item := range result.Hits.Hits {
+		m := Mark{}
+		if err := json.Unmarshal(item.Source, &m); err == nil {
+			marks = append(marks, &m)
+		}
+	}
+	return marks
 }

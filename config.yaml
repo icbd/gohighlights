@@ -6,7 +6,7 @@ default: &default
     dsn: {{ ENV "DB_DSN" "gohighlight.db" }}
   es:
     use: false
-    url: http://localhost:9200
+    url: {{ ENV "ES_URL" "http://localhost:9200" }}
 
 debug:
   <<: *default
