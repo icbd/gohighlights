@@ -22,6 +22,11 @@ jobs:
           mysql user: root
           mysql password: rootpassword
 
+      - uses: miyataka/elasticsearch-github-actions@1
+        with:
+          stack-version: '7.10.0'
+          plugins: 'https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.10.0/elasticsearch-analysis-ik-7.10.0.zip'
+
       - name: Checkout code
         uses: actions/checkout@v2
 
