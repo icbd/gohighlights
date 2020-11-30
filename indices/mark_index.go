@@ -51,6 +51,9 @@ const MarkIndexMapping = `
 }`
 
 func SetupMarkIndex() error {
+	if !Use {
+		return nil
+	}
 	ctx := context.Background()
 	exists, err := Client.IndexExists(MarkIndexName).Do(ctx)
 	if err != nil {
@@ -69,20 +72,23 @@ func SetupMarkIndex() error {
 	return nil
 }
 
-type Mark struct {
+type MarkIndex struct {
 	ID        uint      `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
-	UserId    uint   `json:"user_id"`
+	UserID    uint   `json:"user_id"`
 	URL       string `json:"url"`
 	Tag       string `json:"tag"`
 	HashKey   string `json:"hash_key"`
 	Selection string `json:"selection"`
 }
 
-func NewMark(markModel *models.Mark) (*Mark, error) {
-	markIndex := &Mark{}
+func NewMark(markModel *models.Mark) (*MarkIndex, error) {
+	if !Use {
+		return nil, nil
+	}
+	markIndex := &MarkIndex{}
 	if err := copier.Copy(&markIndex, markModel); err != nil {
 		return nil, err
 	}
@@ -91,7 +97,10 @@ func NewMark(markModel *models.Mark) (*Mark, error) {
 	return markIndex, nil
 }
 
-func (m *Mark) Fresh() (*elastic.IndexResponse, error) {
+func (m *MarkIndex) Fresh() (*elastic.IndexResponse, error) {
+	if !Use {
+		return nil, nil
+	}
 	return Client.
 		Index().
 		Index(MarkIndexName).
@@ -101,6 +110,9 @@ func (m *Mark) Fresh() (*elastic.IndexResponse, error) {
 }
 
 func DeleteBy(id uint) (*elastic.DeleteResponse, error) {
+	if !Use {
+		return nil, nil
+	}
 	return Client.
 		Delete().
 		Index(MarkIndexName).
@@ -134,7 +146,11 @@ GET /mark/_search
   ]
 }
 */
-func Query(u *models.User, text string) (marks []*Mark) {
+func Query(u *models.User, text string) (marks []*MarkIndex) {
+	marks = make([]*MarkIndex, 0)
+	if !Use {
+		return marks
+	}
 	boolQuery := elastic.NewBoolQuery()
 	boolQuery.Must(
 		elastic.NewTermQuery("user_id", u.ID),
@@ -151,7 +167,7 @@ func Query(u *models.User, text string) (marks []*Mark) {
 	}
 
 	for _, item := range result.Hits.Hits {
-		m := Mark{}
+		m := MarkIndex{}
 		if err := json.Unmarshal(item.Source, &m); err == nil {
 			marks = append(marks, &m)
 		}

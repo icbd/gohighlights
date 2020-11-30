@@ -20,10 +20,18 @@ func SessionsCreate(c *gin.Context) {
 		return
 	}
 
-	u, ok := vo.CurrentUser()
-	if !ok {
+	u, err := models.UserFindByEmail(vo.Email)
+	if err != nil {
+		// not found account
 		resp.UnauthorizedErr()
 		return
+	} else {
+		u.Password = vo.Password
+		if !u.ValidPassword() {
+			// password incorrect
+			resp.UnauthorizedErr()
+			return
+		}
 	}
 
 	if s, err := u.GenerateSession(); err != nil {

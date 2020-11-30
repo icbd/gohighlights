@@ -6,10 +6,10 @@ import (
 )
 
 type BaseModel struct {
-	ID        uint           `gorm:"primarykey" json:"id"`
-	CreatedAt time.Time      `json:"-"`
-	UpdatedAt time.Time      `json:"-"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	ID        uint      `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
+	DeletedAt DeletedAt `gorm:"default:0;index" json:"-"`
 }
 
 func DB() *gorm.DB {

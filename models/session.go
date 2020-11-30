@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -10,36 +11,27 @@ type SessionVO struct {
 	Password string `json:"password" form:"password" binding:"min=6"`
 }
 
-func (s *SessionVO) Validate() error {
-	return _validator.Struct(s)
-}
-
-func (s *SessionVO) CurrentUser() (u *User, ok bool) {
-	u = &User{Email: s.Email, Password: s.Password}
-	DB().Where("email = ?", u.Email).First(u)
-	if DB().Error != nil {
-		return nil, false
-	}
-
-	return u, u.ValidPassword()
-}
-
 type Session struct {
 	BaseModel
 	Token     string    `json:"token" gorm:"uniqueindex;not null;type:varchar(255)"`
 	ExpiredAt time.Time `json:"expired_at" gorm:"not null"`
 	UserID    uint      `json:"user_id" gorm:"not null"`
-	User      User      `json:"user"`
+	User      *User     `json:"user,omitempty"`
 }
 
-func (s *Session) FindByToken() error {
-	if err := DB().Where("token = ?", s.Token).Preload("User").First(s).Error; err != nil {
-		return err
+func SessionFindByToken(token string) (session *Session, err error) {
+	if token == "" {
+		return nil, gorm.ErrRecordNotFound
 	}
 
-	if s.ExpiredAt.Before(time.Now()) {
-		return fmt.Errorf("token expired")
+	session = &Session{}
+	if err := DB().Where("token = ?", token).Preload("User").First(session).Error; err != nil {
+		return nil, err
 	}
 
-	return nil
+	if session.ExpiredAt.Before(time.Now()) {
+		return nil, fmt.Errorf("token expired")
+	}
+
+	return session, nil
 }

@@ -12,6 +12,9 @@ var Use bool // if not, jump ES processing
 
 func init() {
 	Use = config.GetBool("es.use")
+	if !Use {
+		return
+	}
 	var err error
 	Client, err = elastic.NewClient(
 		elastic.SetURL(config.GetString("es.url")),

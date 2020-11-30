@@ -36,23 +36,23 @@ func UsersCreate(c *gin.Context) {
 		return
 	}
 
-	u, err := models.FindUserByEmail(vo.Email)
-	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			resp.ParametersErr(err)
-			return
-		}
+	u, err := models.UserFindByEmail(vo.Email)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		resp.InternalErr()
+		return
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		// register new user
-		u.Email = vo.Email
-		u.Password = vo.Password
-		if err := u.Create(); err != nil {
+		u, err = models.UserCreate(vo.Email, vo.Password)
+		if err != nil {
 			resp.ParametersErr(err)
 			return
 		}
 	} else {
 		// check use password
-		var ok bool
-		if u, ok = vo.CurrentUser(); !ok {
+		u.Password = vo.Password
+		if !u.ValidPassword() {
 			resp.UnauthorizedErr()
 			return
 		}
@@ -62,7 +62,6 @@ func UsersCreate(c *gin.Context) {
 	if s, err := u.GenerateSession(); err != nil {
 		resp.ParametersErr(err)
 	} else {
-		s.User = *u
 		resp.Created(s)
 	}
 }

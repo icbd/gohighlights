@@ -19,6 +19,10 @@ func init() {
 	var err error
 	dbDsn := config.GetString("db.dsn")
 	dbType := config.GetString("db.type")
+	if gin.Mode() != gin.ReleaseMode {
+		log.Printf("dbType:[%s]\tdbDsn:[%s]\n", dbType, dbDsn)
+	}
+
 	switch dbType {
 	case "mysql":
 		db, err = gorm.Open(mysql.Open(dbDsn), dbConfig())
@@ -42,7 +46,7 @@ func init() {
 
 func dbConfig() *gorm.Config {
 	c := gorm.Config{}
-	if gin.Mode() == gin.DebugMode {
+	if gin.Mode() != gin.ReleaseMode {
 		c.Logger = logger.Default.LogMode(logger.Info)
 	}
 	return &c

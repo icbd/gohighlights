@@ -28,8 +28,26 @@ ES_URL | elasticsearch url | `http://localhost:9200`
 
 ### CMD
 
+0. Edit Config File
+
 ```shell script
-GIN_MODE=debug DB_TYPE="" DB_DSN="" cmd -db=migrate
+vi config.yaml
+```
+
+If you are using MySQL, please create the  database manually.
+
+1. Migration
+
+```shell script
+GIN_MODE=debug go run ./bin/migrate_cmd.go -db=migrate
+```
+
+Also see [https://github.com/icbd/gorm-migration](https://github.com/icbd/gorm-migration) .
+
+2. Run Server
+
+```shell script
+GIN_MODE=debug go run ./main.go
 ```
 
 ## Run test

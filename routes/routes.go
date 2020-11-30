@@ -30,4 +30,8 @@ func ApiV1Auth(r *gin.Engine) {
 	rg.GET("/marks/query", v1.MarksQuery)
 	rg.GET("/marks/search", v1.MarksSearch)
 	rg.GET("/marks", v1.MarksIndex)
+
+	rg.POST("/marks/:hash_key/comment", v1.CommentsCreate)
+	rg.PATCH("/marks/:hash_key/comment", v1.CommentsUpdate)
+	rg.DELETE("/marks/:hash_key/comment", v1.CommentsDestroy)
 }

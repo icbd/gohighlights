@@ -8,7 +8,7 @@ import (
 func createSessions() error {
 	type Session struct {
 		models.BaseModel
-		Token     string    `json:"token" gorm:"uniqueindex;not null;type:varchar(255)"`
+		Token     string    `json:"token" gorm:"type:varchar(255);not null"`
 		ExpiredAt time.Time `json:"expired_at" gorm:"not null"`
 		UserID    uint      `json:"user_id" gorm:"not null"`
 	}

@@ -36,14 +36,12 @@ func CurrentUserMiddleware(c *gin.Context) {
 	//	}
 	//}
 
-	if bearer != "" {
-		s := models.Session{Token: bearer}
-		if err := s.FindByToken(); err == nil {
-			c.Set(CurrentUser, &s.User)
-			c.Next()
-			return
-		}
+	session, err := models.SessionFindByToken(bearer)
+	if err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		c.Abort()
+		return
 	}
-	c.AbortWithStatus(http.StatusUnauthorized)
-	c.Abort()
+	c.Set(CurrentUser, session.User)
+	c.Next()
 }

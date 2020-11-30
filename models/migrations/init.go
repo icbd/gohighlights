@@ -14,6 +14,11 @@ func init() {
 		addAvatarToUsers,
 		createSessions,
 		createMarks,
+		createComments,
+		addIndexOnUsers,
+		addIndexOnSessions,
+		addIndexOnMarks,
+		addIndexOnComments,
 	)
 }
 

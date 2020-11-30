@@ -11,7 +11,7 @@ import (
 type User struct {
 	BaseModel
 	Status       string `json:"status"`
-	Email        string `json:"email" binding:"required" gorm:"uniqueIndex"`
+	Email        string `json:"email" binding:"required"`
 	Avatar       string `json:"avatar"`
 	PasswordHash string `json:"-"`
 	Password     string `json:"-" gorm:"-"`
@@ -51,31 +51,27 @@ func (u *User) ValidPassword() bool {
 	return bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(u.Password)) == nil
 }
 
-func (u *User) Validate() error {
-	return _validator.Struct(u)
-}
-
-func FindUserByEmail(email string) (u *User, err error) {
+func UserFindByEmail(email string) (u *User, err error) {
 	u = &User{}
 	err = DB().Where("email = ?", email).First(u).Error
 	return
 }
 
-func (u *User) Create() error {
+func UserCreate(email string, password string) (u *User, err error) {
+	u = &User{Email: email, Password: password}
 	if err := u.CalcPasswordHash(); err != nil {
-		return err
+		return nil, err
 	}
-
-	return DB().Create(u).Error
+	err = DB().Create(u).Error
+	return u, err
 }
 
-func (u *User) GenerateSession() (*Session, error) {
-	s := Session{
+func (u *User) GenerateSession() (s *Session, err error) {
+	s = &Session{
 		Token:     utils.GenerateToken(16),
 		ExpiredAt: time.Now().AddDate(0, 1, 0),
 		UserID:    u.ID}
-	if err := DB().Create(&s).Error; err != nil {
-		return nil, err
-	}
-	return &s, nil
+	err = DB().Create(&s).Error
+	s.User = u
+	return s, nil
 }
