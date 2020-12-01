@@ -2,6 +2,7 @@ package indices
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"github.com/icbd/gohighlights/config"
 	"github.com/olivere/elastic/v7"
 	"log"
@@ -16,9 +17,12 @@ func init() {
 		return
 	}
 	var err error
-	Client, err = elastic.NewClient(
-		elastic.SetURL(config.GetString("es.url")),
-	)
+
+	esConfig := []elastic.ClientOptionFunc{elastic.SetURL(config.GetString("es.url"))}
+	if gin.Mode() != gin.ReleaseMode {
+		esConfig = append(esConfig, elastic.SetTraceLog(log.New(log.Writer(), "\n", 0)))
+	}
+	Client, err = elastic.NewClient(esConfig...)
 	if err != nil {
 		log.Fatal(err)
 	}

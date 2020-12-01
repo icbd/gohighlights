@@ -45,6 +45,11 @@ const MarkIndexMapping = `
         "type": "text",
         "analyzer": "ik_max_word",
         "search_analyzer": "ik_smart"
+      },
+      "comment": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
       }
     }
   }
@@ -82,18 +87,21 @@ type MarkIndex struct {
 	Tag       string `json:"tag"`
 	HashKey   string `json:"hash_key"`
 	Selection string `json:"selection"`
+	Comment   string `json:"comment"`
 }
 
-func NewMark(markModel *models.Mark) (*MarkIndex, error) {
+func NewMarkIndex(m *models.Mark) (*MarkIndex, error) {
 	if !Use {
 		return nil, nil
 	}
 	markIndex := &MarkIndex{}
-	if err := copier.Copy(&markIndex, markModel); err != nil {
+	if err := copier.Copy(&markIndex, m); err != nil {
 		return nil, err
 	}
-	markIndex.Selection = markModel.SelectionText()
-
+	markIndex.Selection = m.SelectionText()
+	if m.Comment != nil {
+		markIndex.Comment = m.Comment.Content
+	}
 	return markIndex, nil
 }
 
@@ -109,14 +117,14 @@ func (m *MarkIndex) Fresh() (*elastic.IndexResponse, error) {
 		Do(context.Background())
 }
 
-func DeleteBy(id uint) (*elastic.DeleteResponse, error) {
+func DeleteBy(markID uint) (*elastic.DeleteResponse, error) {
 	if !Use {
 		return nil, nil
 	}
 	return Client.
 		Delete().
 		Index(MarkIndexName).
-		Id(cast.ToString(id)).
+		Id(cast.ToString(markID)).
 		Do(context.Background())
 }
 

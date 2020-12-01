@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/icbd/gohighlights/controllers/api"
+	"github.com/icbd/gohighlights/indices"
 	"github.com/icbd/gohighlights/models"
 )
 
@@ -65,6 +66,49 @@ func CommentsUpdate(c *gin.Context) {
 }
 
 /**
+PUT /marks/:hash_key/comment
+{
+	content: "new or update comment content",
+}
+*/
+func CommentsPut(c *gin.Context) {
+	resp := api.New(c)
+	u := api.CurrentUser(c)
+
+	vo := models.CommentVO{}
+	if err := c.BindJSON(&vo); err != nil {
+		resp.ParametersErr(err)
+		return
+	}
+
+	mark, err := models.MarkFindByHashKey(u.ID, c.Param("hash_key"))
+	if err != nil {
+		resp.ParametersErr(err)
+		return
+	}
+
+	var comment *models.Comment
+	if mark.Comment == nil {
+		// create
+		if vo.Content != "" {
+			comment, err = models.CommentCreate(u.ID, mark.ID, vo.Content)
+		}
+	} else {
+		// update
+		comment, err = models.CommentUpdate(u.ID, mark.ID, vo.Content)
+	}
+	if err != nil {
+		resp.ParametersErr(err)
+	} else {
+		mark.Comment = comment
+		if mIndex, err := indices.NewMarkIndex(mark); err == nil {
+			mIndex.Fresh()
+		}
+		resp.OK(comment)
+	}
+}
+
+/**
 DELETE /marks/:hash_key/comment
 */
 func CommentsDestroy(c *gin.Context) {
@@ -80,6 +124,7 @@ func CommentsDestroy(c *gin.Context) {
 	if _, err := models.CommentDestroy(u.ID, mark.ID); err != nil {
 		resp.ParametersErr(err)
 	} else {
+		indices.DeleteBy(mark.ID)
 		resp.NoContent()
 	}
 }

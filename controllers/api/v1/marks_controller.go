@@ -30,7 +30,7 @@ func MarksCreate(c *gin.Context) {
 	if mark, err := models.MarkCreate(u.ID, &vo); err != nil {
 		resp.ParametersErr(err)
 	} else {
-		if mIndex, err := indices.NewMark(mark); err == nil {
+		if mIndex, err := indices.NewMarkIndex(mark); err == nil {
 			mIndex.Fresh()
 		}
 		resp.Created(mark)
@@ -57,7 +57,7 @@ func MarksUpdate(c *gin.Context) {
 	if mark, err := models.MarkUpdate(u.ID, hashKey, &vo); err != nil {
 		resp.ParametersErr(err)
 	} else {
-		if mIndex, err := indices.NewMark(mark); err == nil {
+		if mIndex, err := indices.NewMarkIndex(mark); err == nil {
 			mIndex.Fresh()
 		}
 		resp.OK(mark)

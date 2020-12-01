@@ -33,5 +33,6 @@ func ApiV1Auth(r *gin.Engine) {
 
 	rg.POST("/marks/:hash_key/comment", v1.CommentsCreate)
 	rg.PATCH("/marks/:hash_key/comment", v1.CommentsUpdate)
+	rg.PUT("/marks/:hash_key/comment", v1.CommentsPut)
 	rg.DELETE("/marks/:hash_key/comment", v1.CommentsDestroy)
 }
