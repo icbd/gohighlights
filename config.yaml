@@ -5,8 +5,9 @@ default: &default
     type: {{ ENV "DB_TYPE" "sqlite" }}
     dsn: {{ ENV "DB_DSN" "gohighlight.db" }}
   es:
-    use: false
+    enable: false
     url: {{ ENV "ES_URL" "http://localhost:9200" }}
+    prefix: ""
 
 debug:
   <<: *default
@@ -14,8 +15,9 @@ debug:
     type: mysql
     dsn: "root:rootpassword@tcp(127.0.0.1:3306)/gohighlights?charset=utf8mb4&parseTime=True&loc=Local"
   es:
-    use: true
+    enable: true
     url: http://localhost:9200
+    prefix: ""
 
 release:
   <<: *default
@@ -25,3 +27,7 @@ test:
   db:
     type: mysql
     dsn: "root:rootpassword@tcp(127.0.0.1:3306)/gohighlights_test?charset=utf8mb4&parseTime=True&loc=Local"
+  es:
+    enable: true
+    url: http://localhost:9200
+    prefix: test_

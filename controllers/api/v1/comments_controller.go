@@ -121,7 +121,7 @@ func CommentsDestroy(c *gin.Context) {
 	if _, err := models.CommentDestroy(u.ID, mark.ID); err != nil {
 		resp.ParametersErr(err)
 	} else {
-		indices.DeleteBy(mark.ID)
+		indices.MarkIndexDelete(mark.ID)
 		resp.NoContent()
 	}
 }

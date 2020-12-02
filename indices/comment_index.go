@@ -29,13 +29,16 @@ POST /mark/_update/:markID
 }
 */
 func (commentIndex *CommentIndex) Update() (*elastic.UpdateResponse, error) {
+	if !Enable {
+		return nil, NotEnabledError
+	}
 	if commentIndex.err != nil {
 		return nil, commentIndex.err
 	}
 
-	return Client.
+	return Client().
 		Update().
-		Index(MarkIndexName).
+		Index(IndexName(MarkIndexName)).
 		Id(cast.ToString(commentIndex.indexID)).
 		Doc(commentIndex).
 		Do(context.Background())

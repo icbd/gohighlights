@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const MarkIndexName = "mark"
+const MarkIndexName = "marks"
 const MarkIndexMapping = `
 {
   "settings": {
@@ -56,28 +56,30 @@ const MarkIndexMapping = `
 }`
 
 func SetupMarkIndex() error {
-	if !Use {
+	if !Enable {
 		return nil
 	}
 	ctx := context.Background()
-	exists, err := Client.IndexExists(MarkIndexName).Do(ctx)
+	exists, err := Client().IndexExists(IndexName(MarkIndexName)).Do(ctx)
 	if err != nil {
 		return err
 	}
 	if exists {
 		return nil
 	}
-	createIndex, err := Client.CreateIndex(MarkIndexName).BodyString(MarkIndexMapping).Do(ctx)
+	createIndex, err := Client().CreateIndex(IndexName(MarkIndexName)).BodyString(MarkIndexMapping).Do(ctx)
 	if err != nil {
 		return err
 	}
 	if !createIndex.Acknowledged {
-		return fmt.Errorf("create %s index failed", MarkIndexName)
+		return fmt.Errorf("create %s index failed", IndexName(MarkIndexName))
 	}
 	return nil
 }
 
 type MarkIndex struct {
+	err error
+
 	ID        uint      `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -90,40 +92,43 @@ type MarkIndex struct {
 	Comment   string `json:"comment"`
 }
 
-func NewMarkIndex(m *models.Mark) (*MarkIndex, error) {
-	if !Use {
-		return nil, nil
+func NewMarkIndex(m *models.Mark) (markIndex *MarkIndex) {
+	markIndex = &MarkIndex{}
+	if !Enable {
+		markIndex.err = fmt.Errorf("!use")
+		return
 	}
-	markIndex := &MarkIndex{}
+
 	if err := copier.Copy(&markIndex, m); err != nil {
-		return nil, err
+		markIndex.err = err
+		return
 	}
 	markIndex.Selection = m.SelectionText()
 	if m.Comment != nil {
 		markIndex.Comment = m.Comment.Content
 	}
-	return markIndex, nil
+	return
 }
 
 func (m *MarkIndex) Fresh() (*elastic.IndexResponse, error) {
-	if !Use {
-		return nil, nil
+	if !Enable {
+		return nil, NotEnabledError
 	}
-	return Client.
+	return Client().
 		Index().
-		Index(MarkIndexName).
+		Index(IndexName(MarkIndexName)).
 		Id(cast.ToString(m.ID)).
 		BodyJson(m).
 		Do(context.Background())
 }
 
-func DeleteBy(markID uint) (*elastic.DeleteResponse, error) {
-	if !Use {
-		return nil, nil
+func MarkIndexDelete(markID uint) (*elastic.DeleteResponse, error) {
+	if !Enable {
+		return nil, NotEnabledError
 	}
-	return Client.
+	return Client().
 		Delete().
-		Index(MarkIndexName).
+		Index(IndexName(MarkIndexName)).
 		Id(cast.ToString(markID)).
 		Do(context.Background())
 }
@@ -168,7 +173,7 @@ GET /mark/_search
 */
 func Query(u *models.User, text string) (marks []*MarkIndex) {
 	marks = make([]*MarkIndex, 0)
-	if !Use {
+	if !Enable {
 		return marks
 	}
 	boolQuery := elastic.NewBoolQuery()
@@ -178,9 +183,9 @@ func Query(u *models.User, text string) (marks []*MarkIndex) {
 		elastic.NewMatchQuery("comment", text),
 	)
 	boolQuery.MinimumNumberShouldMatch(1)
-	result, err := Client.
+	result, err := Client().
 		Search().
-		Index(MarkIndexName).
+		Index(IndexName(MarkIndexName)).
 		Query(boolQuery).
 		Sort("id", false).
 		Do(context.Background())
