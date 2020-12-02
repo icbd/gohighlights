@@ -133,24 +133,36 @@ GET /mark/_search
 {
   "query": {
     "bool": {
-      "must": [
+      "filter": {
+        "term": {
+          "user_id": 1
+        }
+      },
+      "minimum_should_match": "1",
+      "should": [
         {
-          "term": {
-            "user_id": {
-              "value": 1
+          "match": {
+            "selection": {
+              "query": "like"
             }
           }
         },
         {
           "match": {
-            "selection": "过滤"
+            "comment": {
+              "query": "like"
+            }
           }
         }
       ]
     }
   },
-  "_source": [
-    "id"
+  "sort": [
+    {
+      "id": {
+        "order": "desc"
+      }
+    }
   ]
 }
 */
@@ -160,10 +172,12 @@ func Query(u *models.User, text string) (marks []*MarkIndex) {
 		return marks
 	}
 	boolQuery := elastic.NewBoolQuery()
-	boolQuery.Must(
-		elastic.NewTermQuery("user_id", u.ID),
+	boolQuery.Filter(elastic.NewTermQuery("user_id", u.ID))
+	boolQuery.Should(
 		elastic.NewMatchQuery("selection", text),
+		elastic.NewMatchQuery("comment", text),
 	)
+	boolQuery.MinimumNumberShouldMatch(1)
 	result, err := Client.
 		Search().
 		Index(MarkIndexName).

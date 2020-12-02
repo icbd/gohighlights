@@ -100,10 +100,7 @@ func CommentsPut(c *gin.Context) {
 	if err != nil {
 		resp.ParametersErr(err)
 	} else {
-		mark.Comment = comment
-		if mIndex, err := indices.NewMarkIndex(mark); err == nil {
-			mIndex.Fresh()
-		}
+		indices.NewCommentIndex(comment).Update()
 		resp.OK(comment)
 	}
 }
