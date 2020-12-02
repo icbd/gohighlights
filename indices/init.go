@@ -2,30 +2,42 @@ package indices
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/icbd/gohighlights/config"
 	"github.com/olivere/elastic/v7"
 	"log"
 )
 
-var Client *elastic.Client
-var Use bool // if not, jump ES processing
+var client *elastic.Client
+var Enable bool // if not, jump ES processing
+var indexNamePrefix string
+var NotEnabledError = fmt.Errorf("es is not enabled yet")
 
 func init() {
-	Use = config.GetBool("es.use")
-	if !Use {
+	indexNamePrefix = config.GetString("es.prefix")
+	Enable = config.GetBool("es.enable")
+	if !Enable {
 		return
 	}
-	var err error
 
+	var err error
 	esConfig := []elastic.ClientOptionFunc{elastic.SetURL(config.GetString("es.url"))}
 	if gin.Mode() != gin.ReleaseMode {
 		esConfig = append(esConfig, elastic.SetTraceLog(log.New(log.Writer(), "\n", 0)))
 	}
-	Client, err = elastic.NewClient(esConfig...)
+	client, err = elastic.NewClient(esConfig...)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func Client() *elastic.Client {
+	return client
+}
+
+func IndexName(name string) string {
+	return indexNamePrefix + name
 }
 
 type SetupMethod func() error
@@ -38,11 +50,11 @@ func setupMethods() []SetupMethod {
 
 // Ping and init indices
 func Ping() {
-	if !Use {
+	if !Enable {
 		return
 	}
 
-	info, _, err := Client.Ping(config.GetString("es.url")).Do(context.Background())
+	info, _, err := Client().Ping(config.GetString("es.url")).Do(context.Background())
 
 	if err != nil {
 		log.Fatal(err)

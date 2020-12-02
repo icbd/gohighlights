@@ -23,7 +23,7 @@ var currentSession *models.Session
 
 func init() {
 	gin.SetMode(gin.TestMode)
-	indices.Use = false
+	indices.Enable = false
 
 	currentSession, _ = models.FakeUser().GenerateSession()
 }

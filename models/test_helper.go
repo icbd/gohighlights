@@ -18,7 +18,7 @@ func FakeUser() *User {
 
 func FakeSelection() *Selection {
 	rand.Seed(time.Now().Unix())
-	texts := make([]string, rand.Intn(3))
+	texts := make([]string, 1+rand.Intn(3))
 	for i, _ := range texts {
 		texts[i] = utils.GenerateToken(5 + rand.Intn(10))
 	}

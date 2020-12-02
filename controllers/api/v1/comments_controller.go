@@ -100,10 +100,7 @@ func CommentsPut(c *gin.Context) {
 	if err != nil {
 		resp.ParametersErr(err)
 	} else {
-		mark.Comment = comment
-		if mIndex, err := indices.NewMarkIndex(mark); err == nil {
-			mIndex.Fresh()
-		}
+		indices.NewCommentIndex(comment).Update()
 		resp.OK(comment)
 	}
 }
@@ -124,7 +121,7 @@ func CommentsDestroy(c *gin.Context) {
 	if _, err := models.CommentDestroy(u.ID, mark.ID); err != nil {
 		resp.ParametersErr(err)
 	} else {
-		indices.DeleteBy(mark.ID)
+		indices.MarkIndexDelete(mark.ID)
 		resp.NoContent()
 	}
 }

@@ -30,9 +30,7 @@ func MarksCreate(c *gin.Context) {
 	if mark, err := models.MarkCreate(u.ID, &vo); err != nil {
 		resp.ParametersErr(err)
 	} else {
-		if mIndex, err := indices.NewMarkIndex(mark); err == nil {
-			mIndex.Fresh()
-		}
+		indices.NewMarkIndex(mark).Fresh()
 		resp.Created(mark)
 	}
 }
@@ -57,9 +55,7 @@ func MarksUpdate(c *gin.Context) {
 	if mark, err := models.MarkUpdate(u.ID, hashKey, &vo); err != nil {
 		resp.ParametersErr(err)
 	} else {
-		if mIndex, err := indices.NewMarkIndex(mark); err == nil {
-			mIndex.Fresh()
-		}
+		indices.NewMarkIndex(mark).Fresh()
 		resp.OK(mark)
 	}
 }
@@ -74,7 +70,7 @@ func MarksDestroy(c *gin.Context) {
 	if m, err := models.MarkDestroy(u.ID, c.Param("hash_key")); err != nil {
 		resp.ParametersErr(err)
 	} else {
-		indices.DeleteBy(m.ID)
+		indices.MarkIndexDelete(m.ID)
 		resp.NoContent()
 	}
 }
