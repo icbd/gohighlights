@@ -1,6 +1,7 @@
 default: &default
   app:
     addr: "0.0.0.0:3000"
+    domains: []
   db:
     type: {{ ENV "DB_TYPE" "sqlite" }}
     dsn: {{ ENV "DB_DSN" "gohighlight.db" }}
