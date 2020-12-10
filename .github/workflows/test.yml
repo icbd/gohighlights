@@ -36,7 +36,7 @@ jobs:
           go-version: 1.15
 
       - name: Debug
-        run: ls -AlFh; pwd; which go; go env; echo $GIN_MODE;
+        run: ls -AlFh; pwd; which go; go env; echo $GIN_MODE; free -h; cat /proc/cpuinfo;
 
       - name: Migrate
         run:  go run ./bin/migrate_cmd.go -db=migrate
