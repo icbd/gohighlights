@@ -7,12 +7,26 @@ This is GoHighlights's server project, the frontend project is [https://github.c
 
 ## Features
 
-* Add Highlight
-* Change Color
-* Remove Highlight
-* Replay Highlight
+### Ready
+
+- [x] Add Highlight
+- [x] Change Color
+- [x] Remove Highlight
+- [x] Replay Highlight
+
+### Todo
+
+- [ ] History Dashboard
+- [ ] User-friendly Personalization Setting
+- [ ] Web Timer
+- [ ] Reading Report
+- [ ] Read Later Box
 
 ![https://github.com/icbd/gohighlights_ext/blob/master/demo.png](https://github.com/icbd/gohighlights_ext/blob/master/demo.png)
+
+You can try the online version of the chrome store: 
+
+> [https://chrome.google.com/webstore/detail/go-highlights/homlcfpinafhealhlmjkmdjdejppmmlk](https://chrome.google.com/webstore/detail/go-highlights/homlcfpinafhealhlmjkmdjdejppmmlk)
 
 ## Config
 
